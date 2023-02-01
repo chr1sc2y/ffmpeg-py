@@ -1,8 +1,7 @@
 import os
 from context import FileContext
 
-# Windows
-ffmpeg = "C:/Users/Administrator/Downloads/ffmpeg"
+ffmpeg = "ffmpeg"
 
 def traverse(dir: str, format: str, func) -> None:
     for obj in os.listdir(dir):
@@ -14,7 +13,7 @@ def traverse(dir: str, format: str, func) -> None:
             func(ctx)
 
 def execute(cmd : str, replace_flag : bool = False, ctx = None) -> None:
-    # print("executing cmd:", cmd)
+    print("executing cmd:", cmd)
     os.system(cmd)
     if replace_flag:
         os.replace(ctx.temp_file, ctx.original_file)
@@ -22,9 +21,34 @@ def execute(cmd : str, replace_flag : bool = False, ctx = None) -> None:
 def convert_to_1080p_30fps(ctx: FileContext) -> None:
     scale ="1920:1080"
     fps = 30
-    cmd = "{0} -i {1} -vf scale={2} -r {3} {4} -y".format(ffmpeg, ctx.original_file, scale, fps, ctx.temp_file)
+    original_file = ctx.original_file.replace(' ', '\\ ')
+    temp_file = ctx.temp_file.replace(' ', '\\ ')
+    cmd = "{0} -i {1} -vf scale={2} -r {3} -map_metadata 0 {4} -y".format(ffmpeg, original_file, scale, fps, temp_file)
     execute(cmd, True, ctx)
 
+def convert_to_1080p_120fps(ctx: FileContext) -> None:
+    scale ="1920:1080"
+    fps = 120
+    original_file = ctx.original_file.replace(' ', '\\ ')
+    temp_file = ctx.temp_file.replace(' ', '\\ ')
+    cmd = "{0} -i {1} -vf scale={2} -r {3} -map_metadata 0 {4} -y".format(ffmpeg, original_file, scale, fps, temp_file)
+    execute(cmd, True, ctx)
+
+def convert_images_to_1080p(ctx: FileContext) -> None:
+    scale ="1920:1080"
+    ctx.set_format("jpg")
+    original_file = ctx.original_file.replace(' ', '\\ ')
+    temp_file = ctx.temp_file.replace(' ', '\\ ')
+    cmd = "{0} -i {1} -vf scale={2} -map_metadata 0 {3} -y".format(ffmpeg, original_file, scale, temp_file)
+    execute(cmd, True, ctx)
+
+def compress_crf_28(ctx: FileContext) -> None:
+    crf = 28
+    scale ="1920:1080"
+    original_file = ctx.original_file.replace(' ', '\\ ').replace("'", "\'")
+    temp_file = ctx.temp_file.replace(' ', '\\ ').replace("'", "\'")
+    cmd = "{0} -i {1} -crf {2} -vf scale={3} -map_metadata 0 {4}".format(ffmpeg, original_file, crf, scale, temp_file)
+    execute(cmd, True, ctx)
 
 def compress_rate(ctx: FileContext) -> None:
     # for 1080p 60 fps
