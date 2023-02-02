@@ -17,3 +17,4 @@ class FileContext:
     
     def set_format(self, format: str) -> None:
         self.temp_file = "{}.{}".format(self.temp_file.rsplit('.', 1)[0], format)
+        self.temp_file_cmd = self.convert_file_name(self.temp_file)
