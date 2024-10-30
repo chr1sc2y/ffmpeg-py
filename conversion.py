@@ -22,7 +22,8 @@ def traverse(
 def execute(cmd: str, ctx=None) -> None:
     print("executing cmd:", cmd)
     os.system(cmd)
-    ctx.replace_temp_file()
+    ctx.archive_original_file()
+    ctx.rename_temp_file()
 
 
 def compress_image(ctx: FileContext, scale, extesion=None, var3=None) -> None:
