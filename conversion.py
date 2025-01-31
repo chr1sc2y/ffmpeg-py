@@ -1,6 +1,7 @@
 import os
 from typing import Callable
 from context import FileContext
+from pathlib import Path
 
 # import ffmpeg
 
@@ -10,7 +11,9 @@ ffmpeg_bin = "ffmpeg"
 def traverse(
     dir: str, format: str, func: Callable, var1=None, var2=None, var3=None
 ) -> None:
-    for obj in os.listdir(dir):
+    directory = Path(dir)
+    for obj in directory.iterdir():
+        print(obj)
         obj_relative_path = os.path.join(dir, obj)
         if not os.path.isfile(obj_relative_path):
             traverse(obj_relative_path, format, func, var1, var2, var3)
