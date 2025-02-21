@@ -21,7 +21,6 @@ def traverse(
             ctx = FileContext(obj_relative_path)
             func(ctx, var1, var2, var3)
 
-
 def execute(cmd: str, ctx=None) -> None:
     print("executing cmd:", cmd)
     os.system(cmd)
@@ -29,10 +28,10 @@ def execute(cmd: str, ctx=None) -> None:
     ctx.rename_temp_file()
 
 
-def compress_image(ctx: FileContext, scale, extesion=None, var3=None) -> None:
-    ctx.set_format(extesion)
+def compress_image(ctx: FileContext, scale, extension=None, var3=None) -> None:
+    ctx.set_format(extension)
     base, _ = os.path.splitext(ctx.temp_file_name)
-    new_file_name = f"{base}.{extesion}"
+    new_file_name = f"{base}.{extension}"
     cmd = "{0} -i {1} -vf scale={2} -map_metadata 0 {3} -y".format(
         ffmpeg_bin, ctx.original_file_name, scale, new_file_name
     )
