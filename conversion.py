@@ -37,24 +37,23 @@ def compress_image(ctx: FileContext, scale, extension=None, var3=None) -> None:
     )
     execute(cmd, ctx)
 
-
-# Command options:
-# -i = input file
-# -vf scale = resize video
-# -r = set frame rate
-# -c:v hevc_nvenc = use NVIDIA GPU for H.265/HEVC encoding
-# -rc vbr = variable bitrate mode
-# -cq 28 = quality level (constant quality, range: 0-51)  
-#           - 0-18: Near-lossless, best for archives/professional use  
-#           - 19-23: High quality (Blu-ray, 4K videos)  
-#           - 24-28: Recommended default (good balance)  
-#           - 29-35: Moderate compression (standard videos)  
-#           - 36-51: Heavy compression (low bandwidth, noticeable quality loss)  
-# -threads 0 = use all available CPU threads
-# -map_metadata 0 = copy metadata from input
-# -y = overwrite output without asking
+# Option:
+# -i {1}            # Input file: Specifies the source video file path
+# -vf scale={2}     # Video filter: Adjusts the resolution of the video based on the specified scale {2} value
+# -r {3}            # Frame rate: Specifies the frame rate of the output video
+# -c:v libx264      # Video codec: Specifies the use of the H.264 codec for video compression
+# -crf 28           # Constant Rate Factor (CRF): Controls the video quality and file size. 
+#                   # The range is from 0 to 51, with the following breakdown:
+#                   # - 0: Lossless quality (best quality, largest file size)
+#                   # - 18: Nearly lossless (excellent quality, minimal file size increase)
+#                   # - 23: Default value, balanced between quality and file size
+#                   # - 28: Lower quality (smaller file size, noticeable quality loss)
+#                   # - 51: Worst quality (smallest file size, heavily compressed, poor visual quality)
+# -threads 16       # Threads: Specifies the number of threads FFmpeg should use during encoding. Typically, this is set based on the number of CPU cores available.
+# -map_metadata 0   # Metadata: Copies the metadata from the input video (e.g., title, author) to the output file
+# -y                # Overwrite: Automatically overwrites the output file if it already exists without asking for confirmation
 def compress_video(ctx: FileContext, scale, fps, var3=None) -> None:
-    cmd = "{0} -i {1} -vf scale={2} -r {3} -c:v hevc_nvenc -rc vbr -cq 23 -map_metadata 0 {4} -y".format(
+    cmd = "{0} -i {1} -vf scale={2} -r {3} -c:v libx264 -crf 28 -threads 16 -map_metadata 0 {4} -y".format(
         ffmpeg_bin, ctx.original_file_name, scale, fps, ctx.temp_file_name
     )
     execute(cmd, ctx)
