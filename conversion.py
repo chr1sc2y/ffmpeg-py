@@ -38,9 +38,24 @@ def compress_image(ctx: FileContext, scale, extension=None, var3=None) -> None:
     execute(cmd, ctx)
 
 
-def compress_video(ctx: FileContext, scale, fps, crf) -> None:  # todo: test
-    cmd = "{0} -i {1} -vf scale={2} -r {3} -crf {4} -map_metadata 0 {5} -y".format(
-        ffmpeg_bin, ctx.original_file_name, scale, fps, crf, ctx.temp_file_name
+# Command options:
+# -i = input file
+# -vf scale = resize video
+# -r = set frame rate
+# -c:v hevc_nvenc = use NVIDIA GPU for H.265/HEVC encoding
+# -rc vbr = variable bitrate mode
+# -cq 28 = quality level (constant quality, range: 0-51)  
+#           - 0-18: Near-lossless, best for archives/professional use  
+#           - 19-23: High quality (Blu-ray, 4K videos)  
+#           - 24-28: Recommended default (good balance)  
+#           - 29-35: Moderate compression (standard videos)  
+#           - 36-51: Heavy compression (low bandwidth, noticeable quality loss)  
+# -threads 0 = use all available CPU threads
+# -map_metadata 0 = copy metadata from input
+# -y = overwrite output without asking
+def compress_video(ctx: FileContext, scale, fps, var3=None) -> None:
+    cmd = "{0} -i {1} -vf scale={2} -r {3} -c:v hevc_nvenc -rc vbr -cq 23 -map_metadata 0 {4} -y".format(
+        ffmpeg_bin, ctx.original_file_name, scale, fps, ctx.temp_file_name
     )
     execute(cmd, ctx)
 
