@@ -5,13 +5,18 @@ from pathlib import Path
 from datetime import datetime
 import logging
 
+# log
+log_dir = Path("log")
+log_dir.mkdir(parents=True, exist_ok=True)
 logging.basicConfig(
-    filename=datetime.now().strftime("log/log_%Y%m%d_%H%M%S.log"),
+    filename=log_dir / datetime.now().strftime("log_%Y%m%d_%H%M%S.log"),
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
+# ffmpeg
 ffmpeg_bin = "ffmpeg -hide_banner -loglevel warning -stats"
+
 
 def traverse(
     dir: str, format: str, func: Callable, var1=None, var2=None, var3=None
@@ -30,7 +35,7 @@ def traverse(
 
 
 def execute(cmd: str, ctx: FileContext = None) -> None:
-    logging.info("❗️ executing cmd:", cmd)
+    logging.info("❗️ executing cmd: {0}".format(cmd))
     os.system(cmd)
     # ctx.archive_original_file()
     ctx.delete_original_file()
