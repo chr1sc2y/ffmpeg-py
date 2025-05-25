@@ -33,7 +33,10 @@ class FileContext:
         shutil.move(self.original_file, destination)
         # print(f"File {self.original_file} has been moved to {destination}")
 
-    
+    def delete_original_file(self) -> None:
+        if os.path.exists(self.original_file):
+            os.remove(self.original_file)
+        
     def rename_temp_file(self) -> None:
         # print("rename temp file {0}".format(self.temp_file))
         os.rename(self.temp_file, self.temp_file.replace("-temp", ""))

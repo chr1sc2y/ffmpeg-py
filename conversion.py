@@ -2,37 +2,55 @@ import os
 from typing import Callable
 from context import FileContext
 from pathlib import Path
+from datetime import datetime
+import logging
+
+logging.basicConfig(
+    filename=datetime.now().strftime("log/log_%Y%m%d_%H%M%S.log"),
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 ffmpeg_bin = "ffmpeg -hide_banner -loglevel warning -stats"
-
 
 def traverse(
     dir: str, format: str, func: Callable, var1=None, var2=None, var3=None
 ) -> None:
     directory = Path(dir)
-    for obj in directory.iterdir():
-        obj_relative_path = os.path.join(dir, obj)
-        if not os.path.isfile(obj_relative_path):
-            traverse(obj_relative_path, format, func, var1, var2, var3)
-        elif obj_relative_path.lower().endswith(format.lower()):
-            ctx = FileContext(obj_relative_path)
-            func(ctx, var1, var2, var3)
+    try:
+        for obj in directory.iterdir():
+            obj_relative_path = os.path.join(dir, obj)
+            if not os.path.isfile(obj_relative_path):
+                traverse(obj_relative_path, format, func, var1, var2, var3)
+            elif obj_relative_path.lower().endswith(format.lower()):
+                ctx = FileContext(obj_relative_path)
+                func(ctx, var1, var2, var3)
+    except (OSError, IOError) as e:
+        logging.warning(f"⚠️ Skip unaccessible dir: {directory}\nError info: {e}")
 
 
 def execute(cmd: str, ctx: FileContext = None) -> None:
-    print("❗️ executing cmd:", cmd)
+    logging.info("❗️ executing cmd:", cmd)
     os.system(cmd)
-    ctx.archive_original_file()
+    # ctx.archive_original_file()
+    ctx.delete_original_file()
     ctx.rename_temp_file()
-    print("✅ succeed: {0}\n\n".format(ctx.original_file_name))
+    logging.info("✅ succeed: {0}\n\n".format(ctx.original_file_name))
 
 
 def compress_image(ctx: FileContext, scale, extension=None, var3=None) -> None:
     ctx.set_format(extension)
     base, _ = os.path.splitext(ctx.temp_file_name)
     new_file_name = f"{base}.{extension}"
+
+    scale_param = None
+    if scale in [None, "original"]:
+        scale_param = "iw:ih"
+    else:
+        scale_param = scale
+
     cmd = "{0} -i {1} -vf scale={2} -map_metadata 0 {3} -y".format(
-        ffmpeg_bin, ctx.original_file_name, scale, new_file_name
+        ffmpeg_bin, ctx.original_file_name, scale_param, new_file_name
     )
     execute(cmd, ctx)
 
