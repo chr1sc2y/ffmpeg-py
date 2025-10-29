@@ -12,9 +12,11 @@ python3 drone_video.py
 ```
 
 Compress drone videos to 1080p @ 15Mbps while keeping original frame rate.
+
 - Optimized for DJI drone footage
 - High quality for mobile viewing
-- Original videos archived to `archive/` subdirectory
+- Compressed files saved to `compressed/` subdirectory
+- Original files remain untouched
 - ~112MB per minute
 
 ### Image Format Conversion

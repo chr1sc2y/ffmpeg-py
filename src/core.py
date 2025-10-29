@@ -18,25 +18,38 @@ class FileContext:
 
     def __init__(self, original_file: str) -> None:
         self.original_file = original_file
-        name, format = original_file.rsplit(".", 1)
-        self.temp_file = "{0}-temp.{1}".format(name, format)
+        
+        # Get directory and filename
+        file_dir = os.path.dirname(original_file)
+        file_name = os.path.basename(original_file)
+        name, format = file_name.rsplit(".", 1)
+        
+        # Create compressed directory in the same location as original file
+        compressed_dir = os.path.join(file_dir, 'compressed')
+        if not os.path.exists(compressed_dir):
+            os.makedirs(compressed_dir)
+        
+        # Temp file goes to compressed directory
+        self.temp_file = os.path.join(compressed_dir, "{0}-temp.{1}".format(name, format))
+        self.final_file = os.path.join(compressed_dir, file_name)
 
         self.original_file_name = self.convert_file_name(self.original_file)
         self.temp_file_name = self.convert_file_name(self.temp_file)
 
     def set_format(self, format: str) -> None:
         """Change the output file format."""
-        self.temp_file = "{}.{}".format(self.temp_file.rsplit(".", 1)[0], format)
+        temp_name = os.path.basename(self.temp_file).rsplit(".", 1)[0]
+        compressed_dir = os.path.dirname(self.temp_file)
+        self.temp_file = os.path.join(compressed_dir, "{}.{}".format(temp_name, format))
         self.temp_file_name = self.convert_file_name(self.temp_file)
+        
+        # Update final file format as well
+        final_name = os.path.basename(self.original_file).rsplit(".", 1)[0]
+        self.final_file = os.path.join(compressed_dir, "{}.{}".format(final_name, format))
 
     def archive_original_file(self) -> None:
-        """Move original file to archive subdirectory."""
-        file_prefix = os.path.dirname(self.original_file)
-        archive_dir = os.path.join(file_prefix, 'archive')
-        if not os.path.exists(archive_dir):
-            os.makedirs(archive_dir)
-        destination = os.path.join(archive_dir, os.path.basename(self.original_file))
-        shutil.move(self.original_file, destination)
+        """Archive is no longer needed - original file stays in place."""
+        pass
 
     def delete_original_file(self) -> None:
         """Delete the original file."""
@@ -44,8 +57,8 @@ class FileContext:
             os.remove(self.original_file)
         
     def rename_temp_file(self) -> None:
-        """Rename temp file to final name by removing -temp suffix."""
-        os.rename(self.temp_file, self.temp_file.replace("-temp", ""))
+        """Rename temp file to final name in compressed directory."""
+        os.rename(self.temp_file, self.final_file)
 
 
 def traverse(
